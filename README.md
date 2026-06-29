@@ -8,6 +8,6 @@ Add this repository as a Claude Code plugin marketplace, then install the Fusion
 
 ```sh
 /plugin marketplace add YaserJaradeh/ai-tools
-/plugin install fusion-advisor@fusion-tools
+/plugin install fusion-advisor@ai-tools
 ```
 
