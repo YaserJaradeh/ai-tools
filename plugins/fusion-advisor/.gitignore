@@ -1,0 +1,6 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Local env/secrets (the key is never part of this plugin)
+.env

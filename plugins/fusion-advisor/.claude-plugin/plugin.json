@@ -1,0 +1,12 @@
+{
+  "name": "fusion-advisor",
+  "displayName": "Fusion Advisor",
+  "version": "0.1.0",
+  "description": "Get an independent, multi-model second opinion (via OpenRouter Fusion) on the agent's work — available as a /command and as an automatic 'check before finishing' nudge hook.",
+  "author": {
+    "name": "Yaser Jaradeh",
+    "email": "Yaser.Jaradeh@tib.eu"
+  },
+  "license": "MIT",
+  "keywords": ["review", "second-opinion", "advisor", "openrouter", "fusion", "multi-model", "code-review"]
+}

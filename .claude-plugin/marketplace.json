@@ -1,0 +1,16 @@
+{
+  "name": "fusion-tools",
+  "owner": {
+    "name": "Yaser Jaradeh",
+    "email": "yaser.jaradeh@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "fusion-advisor",
+      "source": "./plugins/fusion-advisor",
+      "description": "Independent multi-model second opinion (OpenRouter Fusion) on the agent's work — a /command plus an automatic 'check before finishing' nudge hook.",
+      "category": "code-review",
+      "keywords": ["review", "second-opinion", "advisor", "openrouter", "fusion", "check work", "double check", "complicated"]
+    }
+  ]
+}
