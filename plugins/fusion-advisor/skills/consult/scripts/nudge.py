@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """fusion-advisor Stop hook -- a cheap, dumb nudge.
 
-When Claude finishes a turn, if there is an un-reviewed, non-trivial change in a
+When Claude finishes a turn, if there is a non-trivial, un-consulted change in a
 git working tree (and a key is configured), inject a one-line note suggesting the
-fusion-advisor review skill. The MODEL decides whether to act. No network, no
-model call.
+agent consult the fusion-advisor panel. The MODEL decides whether to act. No
+network, no model call.
 
 Fails silent (exit 0, no output) on anything unexpected, so it never blocks or
 nags during normal work. Loop safety comes from hash de-duplication plus a
@@ -181,10 +181,10 @@ def main():
     save_marker(mpath, h, marker.get("count", 0) + 1)
 
     note = (
-        f"An un-reviewed change is on disk (~{changed} changed lines across "
-        f"{files} file(s)). If it is risky or non-trivial, use the fusion-advisor "
-        f"review skill for an independent multi-model second opinion before "
-        f"finishing; skip if it is trivial or mechanical."
+        f"You've made a non-trivial change (~{changed} lines across {files} "
+        f"file(s)) without a second opinion. If it reflects a real decision, "
+        f"plan, approach, or update worth pressure-testing -- not just a "
+        f"mechanical edit -- consult the fusion-advisor panel before finishing."
     )
     out = {
         "hookSpecificOutput": {

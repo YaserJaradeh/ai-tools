@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """fusion-advisor backend.
 
-Send the current work to an OpenRouter Fusion multi-model panel and print an
-independent review as markdown. Standard library only (no pip install).
+Consult an OpenRouter Fusion multi-model panel for a second opinion and print
+its advice as markdown. Standard library only (no pip install).
 
-Reads a context JSON describing the task and the RAW work artifacts, wraps it in
-a skeptical-reviewer prompt, forces Fusion deliberation, and prints
+Reads a context JSON describing the situation and the RAW artifacts, wraps it in
+an advisory prompt, forces Fusion deliberation, and prints
 choices[0].message.content.
 
 The OpenRouter API key is resolved from the environment or from project/user
@@ -76,49 +76,51 @@ recommended), then set it WITHOUT pasting it into the chat, using one of:
   - Project settings (git-ignored):
       add to .claude/settings.local.json  -> same "env" block
 
-Then re-run the review."""
+Then re-run the consult."""
 
 
-REVIEW_PROMPT_TEMPLATE = """\
-You are an independent panel of senior staff engineers giving a second opinion to
-an AI coding agent. Review its work SKEPTICALLY -- your job is to catch what it
-missed, not to reassure it. Do not rubber-stamp. Flag uncertainty rather than
-inventing issues. Prioritize the 3-7 things that most change the outcome.
+ADVISORY_PROMPT_TEMPLATE = """\
+You are an independent panel of senior technical advisors to an AI coding agent.
+The agent has come to you for a second opinion on a decision, an approach, or a
+piece of work. ADVISE it: give a clear recommendation, tell it what it is
+missing, and judge whether it is even solving the right problem. Be candid and
+specific -- do not rubber-stamp, and flag uncertainty rather than inventing
+problems. Prioritize the few things that most change the outcome.
 
-## TASK (what the user asked for)
+## TASK / SITUATION (what the user asked for)
 {task}
 
-## AGENT'S APPROACH / PLAN
+## THE AGENT'S APPROACH / PLAN
 {approach}
 
-## AGENT'S OWN VERDICT (committed before seeing you -- judge it independently)
+## THE AGENT'S OWN VIEW (committed before consulting you -- judge it independently)
 {agent_verdict}
 
-## SCOPE OF THE WORK UNDER REVIEW
+## WHAT'S UNDER CONSIDERATION
 {scope}
 
-## SPECIFIC CONCERN / FOCUS (optional)
+## SPECIFIC QUESTION / FOCUS (optional)
 {focus}
 
-## THE WORK (raw artifacts: diff / files / plan)
+## THE WORK / ARTIFACTS (raw: diff / files / plan)
 {artifacts}
 
 ---
-Evaluate: (1) correctness and logic bugs; (2) whether this solves the RIGHT
-problem, and whether a materially simpler or safer approach exists; (3) security
-and destructive-operation safety; (4) edge cases and failure modes; (5) missing
-tests / docs / migration / backward-compatibility; (6) conspicuous blind spots.
+Weigh: (1) is this the right approach, and is there a materially simpler or safer
+one? (2) is it solving the right problem? (3) correctness and logic risks;
+(4) security and destructive-operation safety; (5) edge cases and failure modes;
+(6) what is missing (tests, docs, migration, backward-compatibility); (7) blind spots.
 
 Respond in this markdown format:
 
-**Verdict:** ON TRACK | NEEDS CHANGES | WRONG DIRECTION -- one sentence.
+**Recommendation:** <what you would do> -- one or two concrete sentences.
 
-**Findings (ranked):**
-- [P0|P1|P2|P3] <finding> -- why it matters -- concrete fix -- `file:line` if known -- confidence: high|med|low
+**On track?** ON TRACK | NEEDS CHANGES | WRONG DIRECTION -- one sentence on whether this solves the right problem the right way.
 
-**Did we solve the right problem?** yes/no + reasoning (note where you agree vs disagree among yourselves).
+**Key risks / what you may be missing (ranked):**
+- [P0|P1|P2|P3] <point> -- why it matters -- what to do -- `file:line` if relevant -- confidence: high|med|low
 
-**Blind spots / what to verify next:** ...
+**What I'd do next:** ...
 """
 
 
@@ -133,7 +135,7 @@ def build_messages(ctx):
     if len(artifacts) > MAX_ARTIFACT_CHARS:
         artifacts = artifacts[:MAX_ARTIFACT_CHARS] + "\n\n[...truncated for length...]"
 
-    content = REVIEW_PROMPT_TEMPLATE.format(
+    content = ADVISORY_PROMPT_TEMPLATE.format(
         task=field("task"),
         approach=field("approach"),
         agent_verdict=field("agent_verdict"),
@@ -234,11 +236,11 @@ def main():
         reason = ""
         if isinstance(body, dict):
             reason = body.get("failure_reason") or json.dumps(body)[:500]
-        sys.stderr.write(f"ERROR: no review returned. Detail: {reason}\n")
+        sys.stderr.write(f"ERROR: no advice returned. Detail: {reason}\n")
         return 1
 
     if not content or not content.strip():
-        sys.stderr.write("ERROR: empty review returned by the panel.\n")
+        sys.stderr.write("ERROR: empty response returned by the panel.\n")
         return 1
 
     sys.stdout.write(content.rstrip() + "\n")
